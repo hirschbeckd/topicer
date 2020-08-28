@@ -12,12 +12,17 @@ import java.util.*
 class KafkaAdminClientConfig {
 
     @Autowired
-    private lateinit var kafkaProperties: KafkaProperties;
+    lateinit var kafkaProperties: KafkaProperties;
 
     @Bean
     fun adminClient(): AdminClient {
-        val properties = Properties()
-        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.serverUrls)
+        val properties = getKafkaProperties()
         return AdminClient.create(properties)
+    }
+
+    private fun getKafkaProperties(): Properties {
+        val properties = Properties()
+        properties[AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG] = kafkaProperties.serverUrls
+        return properties
     }
 }
