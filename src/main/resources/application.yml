@@ -1,0 +1,3 @@
+topical:
+  kafka:
+    server-urls: localhost:9092
