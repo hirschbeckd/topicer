@@ -9,10 +9,11 @@ import org.springframework.context.annotation.Configuration
 import java.util.*
 
 @Configuration
-class KafkaAdminClientConfig {
-
-    @Autowired
-    lateinit var kafkaProperties: KafkaProperties;
+class KafkaAdminClientConfig
+@Autowired
+constructor(
+        val kafkaProperties: KafkaProperties
+) {
 
     @Bean
     fun adminClient(): AdminClient {
