@@ -8,7 +8,8 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 @EnableConfigurationProperties(KafkaProperties::class)
-class TopicerApplication
+class TopicerApplication {
+}
 
 fun main(args: Array<String>) {
     runApplication<TopicerApplication>(*args)
