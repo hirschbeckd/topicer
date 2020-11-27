@@ -2,5 +2,6 @@ package hu.hirschbeckd.topicer.dto
 
 data class PartitionDto(
         val partitionLeader: String,
-        val replicas: Int
+        val replicaCount: Int,
+        val replicas: List<String>
 )

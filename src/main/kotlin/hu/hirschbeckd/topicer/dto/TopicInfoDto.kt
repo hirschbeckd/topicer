@@ -1,9 +1,9 @@
 package hu.hirschbeckd.topicer.dto
 
 
-data class TopicDto(
+data class TopicInfoDto(
         val name: String,
-        val numberOfPartitions: Int,
+        val partitionCount: Int,
         val partitions: List<PartitionDto>?
 ) {
 }
