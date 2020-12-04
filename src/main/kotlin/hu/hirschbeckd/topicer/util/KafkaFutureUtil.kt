@@ -1,7 +1,6 @@
 package hu.hirschbeckd.topicer.util
 
 import org.apache.kafka.common.KafkaFuture
-import reactor.core.publisher.DirectProcessor
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import reactor.core.publisher.ReplayProcessor
@@ -12,16 +11,19 @@ class KafkaFutureUtil {
 
         @JvmStatic
         fun <T> toMono(kafkaFuture: KafkaFuture<T>): Mono<T> {
-            val processor = DirectProcessor.create<T>()
-            kafkaFuture.thenApply { processor.sink().next(it); processor.sink().complete() }
+            val processor = ReplayProcessor.create<T>()
+            kafkaFuture.whenComplete { result, error ->
+                handleKafkaFutureResult<T>(processor, result, error)
+                processor.onComplete()
+            }
             return Mono.from(processor)
         }
 
         @JvmStatic
         fun <T> toFlux(kafkaFuture: KafkaFuture<Collection<T>>): Flux<T> {
             val processor = ReplayProcessor.create<T>()
-            kafkaFuture.thenApply {
-                it.forEach { it -> processor.onNext(it) }
+            kafkaFuture.whenComplete { result, error ->
+                result.forEach { it -> handleKafkaFutureResult(processor, it, error) }
                 processor.onComplete()
             }
             return processor
@@ -32,15 +34,28 @@ class KafkaFutureUtil {
             val processor = ReplayProcessor.create<T>()
 
             kafkaFutures.forEach {
-                it.thenApply { it ->
-                    processor.onNext(it)
+                it.whenComplete { result, error ->
+                    handleKafkaFutureResult(processor, result, error)
                 }
             }
             val toTypedArray = kafkaFutures.toTypedArray()
             KafkaFuture.allOf(*toTypedArray)
-                    .thenApply { processor.onComplete() }
+                .thenApply { processor.onComplete() }
 
             return processor
         }
+
+        private fun <T> handleKafkaFutureResult(
+            processor: ReplayProcessor<T>,
+            result: T,
+            error: Throwable
+        ) {
+            if (error != null) {
+                processor.onError(error)
+            } else {
+                processor.onNext(result)
+            }
+        }
+
     }
 }
