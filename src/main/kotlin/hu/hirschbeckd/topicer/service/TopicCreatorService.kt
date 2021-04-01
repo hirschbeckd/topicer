@@ -17,7 +17,7 @@ class TopicCreatorService constructor(
     fun createTopics(newTopics: Collection<NewTopicDto>) {
 
         val newKafkaTopics = newTopics.stream()
-                .map { NewTopic(it.name, it.numberOfPartitions, it.replicationFactor) }
+                .map { NewTopic(it.name, it.numberOfPartitions, it.replicationFactor).configs(it.configs) }
                 .collect(Collectors.toList())
 
         val createTopicsResult = adminClient.createTopics(newKafkaTopics)
