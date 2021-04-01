@@ -10,7 +10,7 @@ import java.util.function.Consumer
 import java.util.stream.Collectors
 
 @Service
-class TopicCreatorService constructor(
+class TopicCreateService constructor(
         private val adminClient: AdminClient
 ) {
 
