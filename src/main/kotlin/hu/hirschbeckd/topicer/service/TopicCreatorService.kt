@@ -14,7 +14,7 @@ class TopicCreatorService constructor(
         private val adminClient: AdminClient
 ) {
 
-    fun createTopics(newTopics: Collection<NewTopicDto>) {
+    fun createTopics(newTopics: Collection<NewTopicDto>): Mono<Void> {
 
         val newKafkaTopics = newTopics.stream()
                 .map { NewTopic(it.name, it.numberOfPartitions, it.replicationFactor).configs(it.configs) }
@@ -22,11 +22,11 @@ class TopicCreatorService constructor(
 
         val createTopicsResult = adminClient.createTopics(newKafkaTopics)
 
-         KafkaFutureUtil.toMono(createTopicsResult.all())
+         return KafkaFutureUtil.toMono(createTopicsResult.all())
     }
 
-    fun createTopic(newTopic: NewTopicDto) {
-        createTopics(listOf(newTopic))
+    fun createTopic(newTopic: NewTopicDto): Mono<Void> {
+        return createTopics(listOf(newTopic))
     }
 
 }
