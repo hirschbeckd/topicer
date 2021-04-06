@@ -29,8 +29,8 @@ constructor(
                     val describeTopics = adminClient.describeTopics(listOf(it.name()))
                     val topicDecriptions: Map<String, KafkaFuture<TopicDescription>> = describeTopics.values()
                     val toFlux = KafkaFutureUtil.toFlux(topicDecriptions.values)
-                    toFlux.map { it ->
-                        TopicInfoDto(it.name(), it.partitions().size, getPartitions(it))
+                    toFlux.map { topic ->
+                        TopicInfoDto(topic.name(), topic.partitions().size, getPartitions(topic))
                     }
                 };
 

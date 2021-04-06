@@ -23,7 +23,7 @@ class KafkaFutureUtil {
         fun <T> toFlux(kafkaFuture: KafkaFuture<Collection<T>>): Flux<T> {
             val processor = ReplayProcessor.create<T>()
             kafkaFuture.whenComplete { result, error ->
-                result.forEach { it -> handleKafkaFutureResult(processor, it, error) }
+                result.forEach { handleKafkaFutureResult(processor, it, error) }
                 processor.onComplete()
             }
             return processor
