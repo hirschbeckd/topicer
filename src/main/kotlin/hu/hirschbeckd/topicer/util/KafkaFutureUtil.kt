@@ -47,12 +47,12 @@ class KafkaFutureUtil {
 
         private fun <T> handleKafkaFutureResult(
             processor: ReplayProcessor<T>,
-            result: T,
-            error: Throwable
+            result: T?,
+            error: Throwable?
         ) {
             if (error != null) {
                 processor.onError(error)
-            } else {
+            } else if (result != null) {
                 processor.onNext(result)
             }
         }

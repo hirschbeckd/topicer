@@ -40,7 +40,8 @@ constructor(
         return it.partitions()
                 .stream()
                 .map { partition ->
-                    PartitionDto(partition.leader().toString(), partition.replicas().size, getReplicas(partition))
+                    val leader = partition.leader()
+                    PartitionDto(leader?.toString(), partition.replicas().size, getReplicas(partition))
                 }
                 .collect(Collectors.toList())
     }
