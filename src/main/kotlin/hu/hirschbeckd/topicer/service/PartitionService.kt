@@ -1,6 +1,5 @@
 package hu.hirschbeckd.topicer.service
 
-import hu.hirschbeckd.topicer.dto.NewPartitionDto
 import hu.hirschbeckd.topicer.util.KafkaFutureUtil
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.NewPartitions
@@ -14,21 +13,15 @@ class PartitionService constructor(
     val adminClient: AdminClient
 ) {
 
-    fun addPartition(topicName: String, partition: NewPartitionDto): Mono<Mono<Void>> {
+    fun addPartition(topicName: String): Mono<Mono<Void>> {
         val describeTopics = adminClient.describeTopics(listOf(topicName))
         val topicDecriptions: Map<String, KafkaFuture<TopicDescription>> = describeTopics.values()
         val toFlux = KafkaFutureUtil.toFlux(topicDecriptions.values)
         return toFlux.single()
             .map {
-                val replicasMatrix = getReplicasMatrix(it, partition)
-                val increaseTo = NewPartitions.increaseTo(replicasMatrix.size, listOf(replicasMatrix))
+                val increaseTo = NewPartitions.increaseTo(it.partitions().size + 1)
                 val createPartitionsResult = adminClient.createPartitions(mapOf(Pair(topicName, increaseTo)))
                 KafkaFutureUtil.toMono(createPartitionsResult.all());
             }
-    }
-
-    private fun getReplicasMatrix(topicDesc: TopicDescription, partition: NewPartitionDto): List<Int> {
-        val replicas = 0..(topicDesc.partitions().size - 1) + partition.replicaCount
-        return replicas.toList()
     }
 }

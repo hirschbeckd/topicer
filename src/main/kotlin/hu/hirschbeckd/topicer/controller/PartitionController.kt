@@ -1,8 +1,11 @@
 package hu.hirschbeckd.topicer.controller
 
-import hu.hirschbeckd.topicer.dto.NewPartitionDto
 import hu.hirschbeckd.topicer.service.PartitionService
-import org.springframework.web.bind.annotation.*
+import io.swagger.annotations.ApiResponse
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
 @RestController
@@ -12,7 +15,7 @@ class PartitionController constructor(
 ) {
 
     @PostMapping("/add")
-    fun addPartition(@PathVariable topicName: String, @RequestBody newPartitionDto: NewPartitionDto): Mono<Mono<Void>> {
-        return partitionService.addPartition(topicName, newPartitionDto);
+    fun addPartition(@PathVariable topicName: String): Mono<Mono<Void>> {
+        return partitionService.addPartition(topicName);
     }
 }
