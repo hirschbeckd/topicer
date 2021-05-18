@@ -15,17 +15,20 @@ class PartitionService constructor(
 ) {
 
     fun addPartition(topicName: String, partition: NewPartitionDto): Mono<Mono<Void>> {
-        val replicas = 0..partition.replicaCount + 1
-        val replicasMatrix = listOf(replicas.toList())
-
         val describeTopics = adminClient.describeTopics(listOf(topicName))
         val topicDecriptions: Map<String, KafkaFuture<TopicDescription>> = describeTopics.values()
         val toFlux = KafkaFutureUtil.toFlux(topicDecriptions.values)
         return toFlux.single()
             .map {
-                val increaseTo = NewPartitions.increaseTo(it.partitions().size + 1, replicasMatrix)
+                val replicasMatrix = getReplicasMatrix(it, partition)
+                val increaseTo = NewPartitions.increaseTo(replicasMatrix.size, listOf(replicasMatrix))
                 val createPartitionsResult = adminClient.createPartitions(mapOf(Pair(topicName, increaseTo)))
                 KafkaFutureUtil.toMono(createPartitionsResult.all());
             }
+    }
+
+    private fun getReplicasMatrix(topicDesc: TopicDescription, partition: NewPartitionDto): List<Int> {
+        val replicas = 0..(topicDesc.partitions().size - 1) + partition.replicaCount
+        return replicas.toList()
     }
 }
