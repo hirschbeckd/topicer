@@ -13,12 +13,12 @@ class PartitionService constructor(
     val adminClient: AdminClient
 ) {
 
-    fun addPartition(topicName: String): Mono<Mono<Void>> {
+    fun addPartition(topicName: String): Mono<Void> {
         val describeTopics = adminClient.describeTopics(listOf(topicName))
         val topicDecriptions: Map<String, KafkaFuture<TopicDescription>> = describeTopics.values()
         val toFlux = KafkaFutureUtil.toFlux(topicDecriptions.values)
         return toFlux.single()
-            .map {
+            .flatMap {
                 val increaseTo = NewPartitions.increaseTo(it.partitions().size + 1)
                 val createPartitionsResult = adminClient.createPartitions(mapOf(Pair(topicName, increaseTo)))
                 KafkaFutureUtil.toMono(createPartitionsResult.all());

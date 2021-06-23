@@ -15,7 +15,7 @@ class PartitionController constructor(
 ) {
 
     @PostMapping("/add")
-    fun addPartition(@PathVariable topicName: String): Mono<Mono<Void>> {
+    fun addPartition(@PathVariable topicName: String): Mono<Void> {
         return partitionService.addPartition(topicName);
     }
 }
